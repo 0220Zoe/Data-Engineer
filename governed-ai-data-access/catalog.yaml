@@ -1,0 +1,49 @@
+# Approved operations an AI assistant may call. The assistant never writes SQL;
+# it picks an operation and supplies parameters, which are validated before running.
+
+operations:
+  discover_values:
+    description: >
+      Look up valid filter values (sections or authors) by partial name.
+      Call this first when the user mentions a section or author, then pass the
+      exact returned value to retrieve_article_metrics.
+    owner: data-team
+    allowed_roles: [analyst, newsroom, assistant]
+    params:
+      entity_type: {type: enum, values: [section, author], required: true}
+      search:      {type: string, required: true, max_length: 50}
+      limit:       {type: integer, default: 10, min: 1, max: 25}
+    sql: |
+      SELECT entity_value, row_count
+      FROM entity_values
+      WHERE entity_type = $entity_type
+        AND entity_value ILIKE '%' || $search || '%'
+      ORDER BY row_count DESC
+      LIMIT $limit
+
+  retrieve_article_metrics:
+    description: >
+      Pageviews and unique readers for a date range, optionally filtered to one
+      section or author and grouped by section, author, or day.
+    owner: data-team
+    allowed_roles: [analyst, newsroom, assistant]
+    params:
+      start_date: {type: date, required: true}
+      end_date:   {type: date, required: true}
+      section:    {type: entity, entity_type: section}
+      author:     {type: entity, entity_type: author}
+      group_by:   {type: enum, values: [section, author, view_date], default: section}
+      limit:      {type: integer, default: 20, min: 1, max: 100}
+    max_date_range_days: 92
+    # {group_by} is substituted only from the enum above; every value is a bound parameter.
+    sql: |
+      SELECT {group_by},
+             SUM(pageviews)      AS pageviews,
+             SUM(unique_readers) AS reader_days
+      FROM article_daily_metrics
+      WHERE view_date BETWEEN $start_date AND $end_date
+        AND ($section IS NULL OR section = $section)
+        AND ($author  IS NULL OR author  = $author)
+      GROUP BY {group_by}
+      ORDER BY pageviews DESC
+      LIMIT $limit

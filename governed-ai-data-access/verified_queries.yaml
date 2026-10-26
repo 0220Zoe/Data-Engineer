@@ -1,0 +1,21 @@
+# Evaluation set: real questions, the operation call that should answer them,
+# and a check the result must satisfy. Run with `python evaluate.py`.
+- question: "Which section had the most pageviews in August 2026?"
+  operation: retrieve_article_metrics
+  params: {start_date: "2026-08-01", end_date: "2026-08-31", group_by: section, limit: 1}
+  expect_sql: |
+    SELECT section FROM article_daily_metrics
+    WHERE view_date BETWEEN '2026-08-01' AND '2026-08-31'
+    GROUP BY section ORDER BY SUM(pageviews) DESC LIMIT 1
+
+- question: "How many pageviews did Jordan Lee get in September 2026?"
+  operation: retrieve_article_metrics
+  params: {start_date: "2026-09-01", end_date: "2026-09-30", author: "Jordan Lee", group_by: author}
+  expect_sql: |
+    SELECT 'Jordan Lee', SUM(pageviews) FROM article_daily_metrics
+    WHERE author = 'Jordan Lee' AND view_date BETWEEN '2026-09-01' AND '2026-09-30'
+
+- question: "Is there a section about tech?"
+  operation: discover_values
+  params: {entity_type: section, search: tech}
+  expect_sql: SELECT 'Technology'
