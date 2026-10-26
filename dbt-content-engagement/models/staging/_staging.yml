@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stg_articles
+    columns:
+      - name: article_id
+        tests: [unique, not_null]
+      - name: section
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["politics", "economy", "tech", "health", "energy"]
+  - name: stg_pageviews
+    description: One row per pageview event, deduplicated on event_id.
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: article_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_articles')
+                field: article_id
+  - name: stg_social_post_snapshots
+    columns:
+      - name: post_id
+        tests: [not_null]

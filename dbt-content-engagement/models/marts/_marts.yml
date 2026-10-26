@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: dim_articles
+    columns:
+      - name: article_id
+        tests: [unique, not_null]
+  - name: fct_article_daily_views
+    description: Pageviews and unique readers per article per day.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [article_id, view_date]
+  - name: fct_social_post_engagement
+    description: Latest engagement per social post, flagged by maturity window.
+    columns:
+      - name: post_id
+        tests: [unique, not_null]
+      - name: is_mature
+        tests: [not_null]
+  - name: article_performance
+    description: One row per article combining reading and social engagement.
+    columns:
+      - name: article_id
+        tests: [unique, not_null]

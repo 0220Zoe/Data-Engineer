@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+*.duckdb
+*.duckdb.wal
+*.db
+output/
+spark-warehouse/
+target/
+logs/
+dbt_packages/
+.user.yml
+.venv/
+.DS_Store

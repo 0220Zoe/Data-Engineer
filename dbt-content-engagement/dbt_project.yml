@@ -1,0 +1,22 @@
+name: content_engagement
+version: "1.0.0"
+config-version: 2
+profile: content_engagement
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  as_of_date: "2026-10-20"      # reporting date; pass --vars to override
+  maturity_days: 7              # social posts younger than this are still collecting engagement
+
+models:
+  content_engagement:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table

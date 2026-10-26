@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  nba-coaching-pipeline:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: nba-coaching-pipeline } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pytest requests
+      - run: pytest -q
+
+  weather-api-ingestion:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: weather-api-ingestion } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install duckdb requests pytest
+      - run: pytest -q
+
+  dbt-content-engagement:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: dbt-content-engagement } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install dbt-duckdb
+      - run: dbt build --profiles-dir .
+
+  spark-app-events-medallion:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: spark-app-events-medallion } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - run: pip install -r requirements.txt
+      - run: pytest -q

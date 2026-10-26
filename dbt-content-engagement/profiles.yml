@@ -1,0 +1,7 @@
+content_engagement:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: content_engagement.duckdb
+      threads: 4
